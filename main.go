@@ -24,15 +24,25 @@ func main() {
 		log.Fatal(err)
 	}
 	bodyStr := string(body)
-	endHeader := strings.Index(bodyStr, "\r\n\r\n")
+	endline := "\r\n"
+	endHeader := strings.Index(bodyStr, endline+endline)
+	if endHeader == -1 {
+		endline = "\n"
+		endHeader = strings.Index(bodyStr, endline+endline)
+	}
+	if endHeader == -1 {
+		log.Fatal("cannot read header:" + bodyStr)
+	}
 	header := bodyStr[0:endHeader]
-	lines := strings.Split(header, "\r\n")
+	lines := strings.Split(header, endline)
 	headerParameters := make(map[string]string)
 	for _, line := range lines {
 		parts := strings.SplitN(line, ":", 2)
-		name := strings.ToLower(strings.TrimSpace(parts[0]))
-		value := strings.TrimSpace(parts[1])
-		headerParameters[name] = value
+		if len(parts) == 2 {
+			name := strings.ToLower(strings.TrimSpace(parts[0]))
+			value := strings.TrimSpace(parts[1])
+			headerParameters[name] = value
+		}
 	}
 
 	whitelisted := false
