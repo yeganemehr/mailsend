@@ -66,8 +66,9 @@ func main() {
 	if !whitelisted {
 		log.Fatalf("Destination (%s) is not allowed", headerParameters["to"])
 	}
-
-	cmd := exec.Command("/usr/sbin/sendmail", os.Args[1:]...)
+	eximArgs := os.Args
+	eximArgs[0] = "-bm"
+	cmd := exec.Command("/usr/sbin/exim", eximArgs...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		log.Fatal(err)
